@@ -48,7 +48,7 @@ public class PlayerTest {
 
     @Test
     public void test_that_player_mana_slot_can_be_increased_to_the_maximum_of_10() {
-        player.incrementManaSlot();
+        player.increaseManaSlot();
         assertThat(player.getManaSlots()).isEqualTo(1);
 
         Player player1 = new CPU();
@@ -67,7 +67,6 @@ public class PlayerTest {
     }
 
     static class CPU extends Player {
-
         @Override
         protected Card pickCard(List<Card> playableCards) {
 

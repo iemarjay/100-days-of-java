@@ -1,6 +1,7 @@
 import java.util.*;
+import java.util.stream.Collectors;
 
-import static java.util.stream.Collectors.toCollection;
+import org.assertj.core.util.VisibleForTesting;
 
 public abstract class Player {
 
@@ -9,12 +10,24 @@ public abstract class Player {
     private static final int MAXIMUM_HEALTH = 30;
     private static final int MAXIMUM_MANA_SLOTS = 10;
 
-    public final Deck deck = new Deck(0, 0, 1, 1, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5, 6, 6, 7, 8);
+    Deck deck;
     private final ArrayList<Card> hand = new ArrayList<>();
 
-    private int health = MAXIMUM_HEALTH;
+    private int health;
     private int mana = 0;
     private int manaSlot = 0;
+
+    public Player() {
+        this.deck = Deck.defaultDeck();
+        this.health = MAXIMUM_HEALTH;
+    }
+
+    @VisibleForTesting
+    Player(Deck deck, int health, int manaSlot) {
+        this.deck = deck;
+        this.health = health;
+        this.manaSlot = manaSlot;
+    }
 
 
     public Card nextCard() {
@@ -25,7 +38,7 @@ public abstract class Player {
         return health;
     }
 
-    public void drawCard() {
+    void drawCard() {
         if (deck.size() == 0) {
             health--;
             return;
@@ -50,7 +63,7 @@ public abstract class Player {
         return hand;
     }
 
-    Player incrementManaSlot() {
+    Player increaseManaSlot() {
         if (manaSlot < MAXIMUM_MANA_SLOTS) manaSlot++;
 
         return this;
@@ -78,12 +91,18 @@ public abstract class Player {
         return cardsManaCanAfford().size() > 0;
     }
 
-    public void play(Card card) {
+    Card play() throws NoPlayableCardException {
+        if (!hasPlayableCards()) {
+            throw new NoPlayableCardException();
+        }
+        Card card = nextCard();
         hand.remove(card);
         mana -= card.getCost();
+
+        return card;
     }
 
-    public void receiveDamage(Card card) {
+    void receiveDamage(Card card) {
         health -= card.getCost();
     }
 
@@ -91,12 +110,11 @@ public abstract class Player {
         return getHealth() <= 0;
     }
 
-    private ArrayList<Card> cardsManaCanAfford() {
+    private List<Card> cardsManaCanAfford() {
         return hand.stream()
                 .filter(card -> mana >= card.getCost())
-                .collect(toCollection(ArrayList::new));
+                .collect(Collectors.toList());
     }
 
     protected abstract  Card pickCard(List<Card> playableCards);
-
 }

@@ -27,13 +27,17 @@ public class Deck {
         return deck.size();
     }
 
-    public Card deal() {
+    Card deal() {
         int index = indexFinder.apply(deck.size());
 
         Card card = deck.get(index);
         deck.remove(card);
 
         return card;
+    }
+
+    public static Deck defaultDeck() {
+        return new Deck(0, 0, 1, 1, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5, 6, 6, 7, 8);
     }
 
     @VisibleForTesting

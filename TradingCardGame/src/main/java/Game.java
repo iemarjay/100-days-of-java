@@ -1,6 +1,10 @@
 import java.util.Random;
+import java.util.concurrent.Callable;
+import java.util.function.Function;
 
 public class Game {
+
+    public Callable<Boolean> firstPlayerIsActive;
 
     private Player winner;
     private Player activePlayer;
@@ -11,12 +15,9 @@ public class Game {
 
         activePlayer.drawInitialHandFromDeck();
         opponentPlayer.drawInitialHandFromDeck().drawCard();
-    }
 
-    public void start() {
-            prepareForActivePlayerTurn();
-            newTurn();
-            switchPlayers();
+        Random random = new Random();
+        firstPlayerIsActive = random::nextBoolean;
     }
 
     public Player getActivePlayer() {
@@ -31,13 +32,34 @@ public class Game {
         return winner;
     }
 
-    private void newTurn() {
-        if (activePlayer.hasPlayableCards()) {
-            Card card = activePlayer.nextCard();
-
-            activePlayer.play(card);
-            opponentPlayer.receiveDamage(card);
+    void newMove() throws IllegalMoveException {
+        Card card = null;
+        try {
+            card = activePlayer.play();
+        } catch (NoPlayableCardException e) {
+            throw new IllegalMoveException("Cant make move since there are no cards left.", e);
         }
+
+        opponentPlayer.receiveDamage(card);
+
+        if (opponentPlayer.isDead()) {
+            winner = activePlayer;
+        }
+    }
+
+    void switchPlayers() {
+        if (opponentPlayer.isDead()) return;
+
+        Player active = activePlayer;
+        activePlayer = opponentPlayer;
+        opponentPlayer = active;
+    }
+
+    void prepareForActivePlayerTurn() {
+        activePlayer
+                .increaseManaSlot()
+                .refillMana()
+                .drawCard();
     }
 
     private void randomlyPickActiveAndOpponentPlayer(Player player, Player player1) {
@@ -45,18 +67,5 @@ public class Game {
 
         this.activePlayer = random.nextBoolean() ? player : player1;
         this.opponentPlayer = activePlayer.equals(player) ? player1 : player;
-    }
-
-    private void switchPlayers() {
-        Player active = activePlayer;
-        activePlayer = opponentPlayer;
-        opponentPlayer = active;
-    }
-
-    private void prepareForActivePlayerTurn() {
-        activePlayer
-                .incrementManaSlot()
-                .refillMana()
-                .drawCard();
     }
 }
