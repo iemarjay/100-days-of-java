@@ -11,6 +11,7 @@
     <modules>
         <module>TradingCardGame</module>
         <module>PacMan</module>
+        <module>concurrency</module>
         <module>WordFrequency</module>
     </modules>
 
