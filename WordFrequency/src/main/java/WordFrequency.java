@@ -3,33 +3,28 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class WordFrequency {
-    private Map<String, Integer> wordFrequency;
-    private final WordTokenizer tokenizer;
-    private final TokenFrequencyCounter tokenFrequencyCounter;
-    private final StringToWordSplitter splitter;
+    private final WordNormalizer normalizer;
+    private final StringTokenizer tokenizer;
     private static final String resourcePath = "../resources/wmf.txt";
 
     static void main(String[] args) throws IOException {
-        init().generateWordFrequency(defaultReader().lines());
+        Map<String, Long> wordFrequency = init().generateWordFrequency(defaultReader().lines());
     }
 
-    WordFrequency(WordTokenizer tokenizer, TokenFrequencyCounter tokenFrequencyCounter, StringToWordSplitter splitter) {
+    WordFrequency(WordNormalizer normalizer, StringTokenizer tokenizer) {
+        this.normalizer = normalizer;
         this.tokenizer = tokenizer;
-        this.tokenFrequencyCounter = tokenFrequencyCounter;
-        this.splitter = splitter;
     }
 
-    private void generateWordFrequency(Stream<String> lines) {
-        lines.forEach(line -> {
-            Stream<String> stream = splitter.splitStringToWord(line);
-            stream.forEach(word -> {
-                String token = tokenizer.tokenize(word);
-                tokenFrequencyCounter.addToken(token);
-            });
-        });
+    private Map<String, Long> generateWordFrequency(Stream<String> lines) {
+        return lines.flatMap(tokenizer::tokenize)
+                .map(normalizer::normalize)
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
     }
 
     private static BufferedReader defaultReader() throws IOException {
@@ -37,6 +32,6 @@ public class WordFrequency {
     }
 
     static WordFrequency init() throws IOException {
-        return new WordFrequency(new WordTokenizer(), new TokenFrequencyCounter(), new StringToWordSplitter());
+        return new WordFrequency(new WordNormalizer(), new StringTokenizer());
     }
 }

@@ -5,10 +5,10 @@ public class WordNormalizerTest {
     @Test
     public void test_makes_words_lowercase() {
 
-        String normalize1 = new WordTokenizer().tokenize("Abds");
-        String normalize2 = new WordTokenizer().tokenize("ABSD");
-        String normalize3 = new WordTokenizer().tokenize("qwertY");
-        String normalize4 = new WordTokenizer().tokenize("qwerty");
+        String normalize1 = new WordNormalizer().normalize("Abds");
+        String normalize2 = new WordNormalizer().normalize("ABSD");
+        String normalize3 = new WordNormalizer().normalize("qwertY");
+        String normalize4 = new WordNormalizer().normalize("qwerty");
 
         assertThat(normalize1).isEqualTo("abds");
         assertThat(normalize2).isEqualTo("absd");
@@ -19,7 +19,7 @@ public class WordNormalizerTest {
     @Test
     public void test_removes_special_characters() {
         String word = "EerrJJ3234/4303;'";
-        String normalized = new WordTokenizer().tokenize(word);
+        String normalized = new WordNormalizer().normalize(word);
 
         assertThat(normalized).isEqualTo("eerrjj32344303");
     }

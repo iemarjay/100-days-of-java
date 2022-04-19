@@ -1,6 +1,6 @@
-public class WordTokenizer {
+public class WordNormalizer {
 
-    public String tokenize(String word) {
+    public String normalize(String word) {
         String normalized = word.toLowerCase();
         normalized = removeSpecialChars(normalized);
 
